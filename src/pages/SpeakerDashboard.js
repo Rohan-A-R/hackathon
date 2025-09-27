@@ -18,12 +18,16 @@ import {
   FileText, 
   QrCode,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Edit3,
+  Upload
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Modal from '../components/Modal';
 import SessionForm from '../components/SessionForm';
+import DocumentManagement from '../components/DocumentManagement';
+import ChangeRequestManagement from '../components/ChangeRequestManagement';
 import { getStatusColor, getStatusText, formatDateTime } from '../utils';
 import toast from 'react-hot-toast';
 
@@ -33,6 +37,7 @@ const SpeakerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showSessionForm, setShowSessionForm] = useState(false);
   const [availabilityConfirmed, setAvailabilityConfirmed] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     if (!user) return;
@@ -123,6 +128,12 @@ const SpeakerDashboard = () => {
 
   const stats = getSessionStats();
 
+  const tabs = [
+    { id: 'overview', name: 'Overview', icon: CheckCircle },
+    { id: 'documents', name: 'Documents', icon: FileText },
+    { id: 'changes', name: 'Change Requests', icon: Edit3 }
+  ];
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
@@ -146,28 +157,69 @@ const SpeakerDashboard = () => {
           </p>
         </div>
 
-        {/* Availability Confirmation Alert */}
-        {!availabilityConfirmed && sessions.some(s => s.status === 'approved') && (
-          <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
-              <div className="flex-1">
-                <h3 className="text-sm font-medium text-yellow-800">
-                  Confirm Your Availability
-                </h3>
-                <p className="mt-1 text-sm text-yellow-700">
-                  You have approved sessions. Please confirm your availability to attend the event.
-                </p>
-              </div>
-              <button
-                onClick={confirmAvailability}
-                className="ml-4 bg-yellow-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-yellow-700"
-              >
-                Confirm Availability
-              </button>
-            </div>
+        {/* Tabs Navigation */}
+        <div className="mb-8">
+          <div className="sm:hidden">
+            <select
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value)}
+              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
+            >
+              {tabs.map((tab) => (
+                <option key={tab.id} value={tab.id}>
+                  {tab.name}
+                </option>
+              ))}
+            </select>
           </div>
-        )}
+          <div className="hidden sm:block">
+            <nav className="flex space-x-8" aria-label="Tabs">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`${
+                      activeTab === tab.id
+                        ? 'border-primary-500 text-primary-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center`}
+                  >
+                    <Icon className="h-5 w-5 mr-2" />
+                    {tab.name}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'overview' && (
+          <>
+            {/* Availability Confirmation Alert */}
+            {!availabilityConfirmed && sessions.some(s => s.status === 'approved') && (
+              <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-yellow-800">
+                      Confirm Your Availability
+                    </h3>
+                    <p className="mt-1 text-sm text-yellow-700">
+                      You have approved sessions. Please confirm your availability to attend the event.
+                    </p>
+                  </div>
+                  <button
+                    onClick={confirmAvailability}
+                    className="ml-4 bg-yellow-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-yellow-700"
+                  >
+                    Confirm Availability
+                  </button>
+                </div>
+              </div>
+            )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -316,6 +368,14 @@ const SpeakerDashboard = () => {
             </div>
           )}
         </div>
+          </>
+        )}
+
+        {/* Documents Tab */}
+        {activeTab === 'documents' && <DocumentManagement />}
+
+        {/* Change Requests Tab */}
+        {activeTab === 'changes' && <ChangeRequestManagement />}
       </div>
 
       {/* Session Form Modal */}

@@ -35,6 +35,23 @@ export const createUser = async (email, password, userData) => {
       organization: userData.organization || '',
       bio: userData.bio || '',
       profileImage: userData.profileImage || '',
+      // New required fields
+      track: userData.track || '',
+      sessionCategory: userData.sessionCategory || '',
+      tshirtSize: userData.tshirtSize || '',
+      foodChoice: userData.foodChoice || '',
+      // Optional co-speaker fields
+      speaker2Name: userData.speaker2Name || null,
+      speaker2Email: userData.speaker2Email || null,
+      speaker2TshirtSize: userData.speaker2TshirtSize || null,
+      // Emergency contact fields
+      bloodGroup: userData.bloodGroup || null,
+      emergencyContactName: userData.emergencyContactName || null,
+      emergencyContactNumber: userData.emergencyContactNumber || null,
+      // Professional links
+      linkedinProfile: userData.linkedinProfile || null,
+      sapCommunityUrl: userData.sapCommunityUrl || null,
+      // System fields
       isActive: true,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()

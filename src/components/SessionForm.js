@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase/config';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 import { SESSION_TYPES, TRACKS } from '../utils';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Users, AlertCircle } from 'lucide-react';
 import LoadingSpinner from './LoadingSpinner';
 import toast from 'react-hot-toast';
 
@@ -12,6 +12,8 @@ const SessionForm = ({ onSuccess, editSession = null }) => {
   const { user, userData } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
+  const [canEdit, setCanEdit] = useState(true);
+  const [eventDate, setEventDate] = useState(null);
 
   const {
     register,
@@ -28,9 +30,35 @@ const SessionForm = ({ onSuccess, editSession = null }) => {
       duration: 30,
       requirements: '',
       targetAudience: '',
-      tags: ''
+      tags: '',
+      // Co-speaker details
+      coSpeakerName: userData?.speaker2Name || '',
+      coSpeakerEmail: userData?.speaker2Email || ''
     }
   });
+
+  // Check if edits are allowed (not within 1 week of event)
+  useEffect(() => {
+    const fetchEventSettings = async () => {
+      try {
+        const settingsDoc = await getDoc(doc(db, 'settings', 'event'));
+        if (settingsDoc.exists()) {
+          const settings = settingsDoc.data();
+          if (settings.eventDate) {
+            const eventTimestamp = new Date(settings.eventDate);
+            const oneWeekBefore = new Date(eventTimestamp.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const now = new Date();
+            setCanEdit(now < oneWeekBefore);
+            setEventDate(eventTimestamp);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching event settings:', error);
+      }
+    };
+    
+    fetchEventSettings();
+  }, []);
 
   const abstract = watch('abstract');
   const title = watch('title');
@@ -90,6 +118,10 @@ const SessionForm = ({ onSuccess, editSession = null }) => {
         speakerEmail: userData.email,
         speakerBio: userData.bio,
         speakerOrganization: userData.organization,
+        // Co-speaker details
+        coSpeakerName: data.coSpeakerName || null,
+        coSpeakerEmail: data.coSpeakerEmail || null,
+        hasCoSpeaker: !!(data.coSpeakerName && data.coSpeakerEmail),
         status: 'submitted',
         tags: data.tags.split(',').map(tag => tag.trim()).filter(Boolean),
         createdAt: serverTimestamp(),
@@ -313,6 +345,53 @@ const SessionForm = ({ onSuccess, editSession = null }) => {
         />
       </div>
 
+      {/* Co-Speaker Details */}
+      <div className="border-t border-gray-200 pt-6">
+        <div className="flex items-center mb-4">
+          <Users className="h-5 w-5 text-gray-400 mr-2" />
+          <h4 className="text-lg font-medium text-gray-900">Co-Speaker Details (Optional)</h4>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="coSpeakerName" className="block text-sm font-medium text-gray-700">
+              Co-Speaker Name
+            </label>
+            <input
+              {...register('coSpeakerName')}
+              type="text"
+              disabled={!canEdit}
+              className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${
+                !canEdit ? 'bg-gray-100 cursor-not-allowed' : ''
+              }`}
+              placeholder="Co-speaker full name"
+            />
+          </div>
+          <div>
+            <label htmlFor="coSpeakerEmail" className="block text-sm font-medium text-gray-700">
+              Co-Speaker Email
+            </label>
+            <input
+              {...register('coSpeakerEmail', {
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: 'Please enter a valid email'
+                }
+              })}
+              type="email"
+              disabled={!canEdit}
+              className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${
+                !canEdit ? 'bg-gray-100 cursor-not-allowed' : ''
+              }`}
+              placeholder="co-speaker@example.com"
+            />
+            {errors.coSpeakerEmail && (
+              <p className="mt-1 text-sm text-red-600">{errors.coSpeakerEmail.message}</p>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Tags */}
       <div>
         <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
@@ -321,13 +400,33 @@ const SessionForm = ({ onSuccess, editSession = null }) => {
         <input
           {...register('tags')}
           type="text"
-          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+          disabled={!canEdit}
+          className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm ${
+            !canEdit ? 'bg-gray-100 cursor-not-allowed' : ''
+          }`}
           placeholder="Enter tags separated by commas (e.g., React, JavaScript, Frontend)"
         />
         <p className="mt-1 text-sm text-gray-500">
           Add relevant tags to help categorize your session
         </p>
       </div>
+
+      {/* Deadline Warning */}
+      {!canEdit && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+          <div className="flex">
+            <AlertCircle className="h-5 w-5 text-yellow-400 mr-2 mt-0.5" />
+            <div>
+              <h4 className="text-sm font-medium text-yellow-800">
+                Changes No Longer Allowed
+              </h4>
+              <p className="text-sm text-yellow-700 mt-1">
+                Session modifications are disabled within one week of the event date. Please contact the event organizers if you need to make urgent changes.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Submit Button */}
       <div className="flex justify-end space-x-4">
@@ -340,10 +439,14 @@ const SessionForm = ({ onSuccess, editSession = null }) => {
         </button>
         <button
           type="submit"
-          disabled={isLoading}
-          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+          disabled={isLoading || !canEdit}
+          className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 ${
+            canEdit
+              ? 'bg-primary-600 hover:bg-primary-700'
+              : 'bg-gray-400 cursor-not-allowed'
+          } disabled:opacity-50`}
         >
-          {isLoading ? <LoadingSpinner size="sm" text="" /> : 'Submit Session'}
+          {isLoading ? <LoadingSpinner size="sm" text="" /> : (editSession ? 'Update Session' : 'Submit Session')}
         </button>
       </div>
     </form>

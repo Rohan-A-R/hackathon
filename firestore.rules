@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection - users can read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && resource.data.role == 'event_manager';
+    }
+    
+    // Sessions collection - speakers can CRUD their own sessions, event managers can read all
+    match /sessions/{sessionId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.speakerId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.speakerId;
+      allow read, write: if request.auth != null && getUserRole(request.auth.uid) == 'event_manager';
+    }
+    
+    // Change requests - speakers can CRUD their own requests, event managers can read/update all
+    match /changeRequests/{requestId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.requesterId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.requesterId;
+      allow read, write: if request.auth != null && getUserRole(request.auth.uid) == 'event_manager';
+    }
+    
+    // Documents - speakers can CRUD their own documents, event managers can read all
+    match /documents/{documentId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.uploadedBy;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uploadedBy;
+      allow read, write: if request.auth != null && getUserRole(request.auth.uid) == 'event_manager';
+    }
+    
+    // Templates - all authenticated users can read, only event managers can write
+    match /templates/{templateId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && getUserRole(request.auth.uid) == 'event_manager';
+    }
+    
+    // Settings - all authenticated users can read, only event managers can write
+    match /settings/{settingId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && getUserRole(request.auth.uid) == 'event_manager';
+    }
+    
+    // Agenda - all authenticated users can read, only event managers can write
+    match /agenda/{agendaId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && getUserRole(request.auth.uid) == 'event_manager';
+    }
+    
+    // Helper function to get user role
+    function getUserRole(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.role;
+    }
+  }
+}

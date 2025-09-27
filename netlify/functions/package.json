@@ -1,0 +1,10 @@
+{
+  "name": "speaker-persona-functions",
+  "version": "1.0.0",
+  "description": "Serverless functions for Speaker Persona App",
+  "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
+    "qrcode": "^1.5.3",
+    "openai": "^3.3.0"
+  }
+}

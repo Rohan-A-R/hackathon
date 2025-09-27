@@ -1,0 +1,294 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# =================================
+# Dependencies
+# =================================
+/node_modules
+/.pnp
+.pnp.js
+netlify/functions/node_modules
+
+# =================================
+# Production builds
+# =================================
+/build
+/dist
+
+# =================================
+# Environment variables & secrets
+# =================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Firebase config (if you store it in a separate file)
+firebase-config.js
+firebase-config.json
+
+# API keys and secrets
+secrets.json
+config/secrets.js
+
+# =================================
+# Testing
+# =================================
+/coverage
+*.lcov
+
+# =================================
+# IDE and Editor files
+# =================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# =================================
+# Operating System files
+# =================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# =================================
+# Logs and runtime data
+# =================================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# =================================
+# Optional npm cache directory
+# =================================
+.npm
+
+# =================================
+# ESLint cache
+# =================================
+.eslintcache
+
+# =================================
+# Microbundle cache
+# =================================
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# =================================
+# Optional REPL history
+# =================================
+.node_repl_history
+
+# =================================
+# Output of 'npm pack'
+# =================================
+*.tgz
+
+# =================================
+# Yarn Integrity file
+# =================================
+.yarn-integrity
+
+# =================================
+# parcel-bundler cache (https://parceljs.org/)
+# =================================
+.cache
+.parcel-cache
+
+# =================================
+# Next.js build output
+# =================================
+.next
+
+# =================================
+# Nuxt.js build / generate output
+# =================================
+.nuxt
+dist
+
+# =================================
+# Gatsby files
+# =================================
+.cache/
+public
+
+# =================================
+# Storybook build outputs
+# =================================
+.out
+.storybook-out
+
+# =================================
+# Temporary folders
+# =================================
+tmp/
+temp/
+
+# =================================
+# Firebase
+# =================================
+.firebase/
+*-debug.log
+firebase-debug.log
+
+# Firebase functions
+functions/node_modules/
+functions/.env
+functions/lib/
+
+# =================================
+# Netlify
+# =================================
+.netlify/
+
+# Netlify functions build
+/.netlify/functions/
+/netlify/functions/dist/
+
+# =================================
+# Vercel
+# =================================
+.vercel
+
+# =================================
+# Serverless Framework
+# =================================
+.serverless/
+
+# =================================
+# DynamoDB Local files
+# =================================
+.dynamodb/
+
+# =================================
+# TernJS port file
+# =================================
+.tern-port
+
+# =================================
+# Stores VSCode versions used for testing VSCode extensions
+# =================================
+.vscode-test
+
+# =================================
+# Yarn v2
+# =================================
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# =================================
+# TypeScript
+# =================================
+*.tsbuildinfo
+
+# =================================
+# Optional stylelint cache
+# =================================
+.stylelintcache
+
+# =================================
+# SvelteKit build / generate output
+# =================================
+.svelte-kit
+
+# =================================
+# Local development files
+# =================================
+.local
+.env.example.filled
+
+# =================================
+# Database files
+# =================================
+*.db
+*.sqlite
+*.sqlite3
+
+# =================================
+# Backup files
+# =================================
+*.backup
+*.bak
+*.tmp
+
+# =================================
+# Certificates and keys
+# =================================
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+
+# =================================
+# Miscellaneous
+# =================================
+.nyc_output
+.grunt
+bower_components
+.lock-wscript
+build/Release
+node_modules/
+jspm_packages/
+web_modules/
+
+# =================================
+# Package manager lock files (optional - choose one approach)
+# =================================
+# Uncomment the line below if you want to ignore lock files
+# (not recommended for production apps)
+# package-lock.json
+# yarn.lock
+
+# =================================
+# Custom project-specific ignores
+# =================================
+# Add any specific files or folders for your project here
+mock-data/
+test-uploads/
+debug/

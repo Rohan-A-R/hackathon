@@ -44,7 +44,8 @@ const Footer = () => {
                 rel="noopener noreferrer"
               >
                 <Github className="h-5 w-5" />
-              <a 
+              </a>
+              <a
                 href="mailto:support@example.com" 
                 className="text-gray-400 hover:text-white transition-colors"
                 aria-label="Email"

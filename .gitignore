@@ -148,10 +148,10 @@ pids
 dist
 
 # =================================
-# Gatsby files
+# Gatsby files (only for Gatsby projects)
 # =================================
 .cache/
-public
+# public - Commented out for React projects that need public folder
 
 # =================================
 # Storybook build outputs
